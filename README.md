@@ -1,4 +1,2 @@
-# Low-Shot-SPEI-Paper
-Code for experiments regarding arKiv paper called "Low-Shote Learning using Shape Proportions and Encircled Image-Histograms".  Includes the code for the 3 experiments under a data starved scenario.  The first was on created regular polygon shape images.  The second was on a subset of the NML NIH pill dataset.  The third was a galaxy shape dataset.  
-
-TEST
+# Low-Shot-SPEI-Paper-Galaxy-Experiment
+Code for experiments regarding arKiv paper called "Low-Shote Learning using Shape Proportions and Encircled Image-Histograms" for galaxy experiment (Ganalyzer: A Tool for Automatic Galaxy Image Analysis, Shamir, 2011).  The original image data is not provided here, but can be obtained from Shamir, 2011.  The EIs resulting from the image operators are provided, alongisde the code to perform the analysis.  The mgcreate custom library for Python must be obtained from "Image Operators: Image Processing in Python" by Jason Kinser. 
