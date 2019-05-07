@@ -1045,7 +1045,7 @@ xtable(ultima)
 
 #final results plot
 
-models<-( rep(rownames(ultima)[1:4], 6*4 ) )
+models<-( rep(c("CNN", "SVM", "QDA", "Tree"), 6*4 ) )
 set<-( rep(c(rep("Training", 4), rep("Validation", 4)), 6) )
 acc<-c(ultima[,1], ultima[,2], ultima[,3],
        ultima[,4], ultima[,5], ultima[,6])
