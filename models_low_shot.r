@@ -1045,7 +1045,7 @@ xtable(ultima)
 
 #final results plot
 
-models<-( rep(c("CNN", "SVM", "QDA", "Tree"), 6*4 ) )
+models<-( rep(c("CNN", "QDA", "SVM", "Tree"), 6*4 ) )
 set<-( rep(c(rep("Training", 4), rep("Validation", 4)), 6) )
 acc<-c(ultima[,1], ultima[,2], ultima[,3],
        ultima[,4], ultima[,5], ultima[,6])
@@ -1075,7 +1075,8 @@ ultima_plot<-ggplot(data=mydata,
 	      #scale_y_discrete(limits=c(0, 1.00))+
           #scale_x_discrete(breaks=c(3, 4, 5, 7, 10, 20))+
           mytheme.scat+
-          scale_colour_manual(values = c("Red", "Blue", "Green", "khaki2"))+
+          scale_colour_manual(values = c("Red", "Blue", "Green", "khaki2"),
+                              breaks= c("CNN", "QDA", "SVM", "Tree"))+
           #scale_color_discrete(breaks=c("Training", "Validation"))+
           theme(legend.text=element_text(size=18),
                 legend.title=element_text(size=24))
