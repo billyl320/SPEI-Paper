@@ -269,7 +269,7 @@ train_results[,1]<-model_rslts[,1]
 n=4
 
 #cnn results for n=1
-model_rslts[1,]<-c(0.95, 0.27)
+model_rslts[1,]<-c(0.91, 0.30)
 
 
 #################
@@ -441,7 +441,7 @@ train_results[,2]<-model_rslts[,1]
 n=5
 
 #cnn results for n=1
-model_rslts[1,]<-c(0.95, 0.27)
+model_rslts[1,]<-c(0.86, 0.32)
 
 
 #################
@@ -614,7 +614,7 @@ train_results[,3]<-model_rslts[,1]
 n=6
 
 #cnn results for n=20
-model_rslts[1,]<-c(0.95, 0.27)
+model_rslts[1,]<-c(0.92, 0.37)
 
 
 #################
@@ -787,7 +787,7 @@ train_results[,4]<-model_rslts[,1]
 n=7
 
 #cnn results for n=25
-model_rslts[1,]<-c(0.95, 0.27)
+model_rslts[1,]<-c(0.94, 0.42)
 
 
 #################
@@ -959,7 +959,7 @@ train_results[,5]<-model_rslts[,1]
 n=8
 
 #cnn results for n=1
-model_rslts[1,]<-c(0.95, 0.27)
+model_rslts[1,]<-c(0.92, 0.46)
 
 
 #################
