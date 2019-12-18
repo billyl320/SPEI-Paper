@@ -1,2 +1,2 @@
-# SPEI Paper
-Code for experiments using SPEIs.  Includes the code for the 3 experiments under a data starved scenario.  The first was on created regular polygon shape images.  The second was on a subset of the NLM NIH pill dataset.  The third was a galaxy shape dataset.  The fourth is on a subset of the MPEG-7 dataset.  Each experiment has its own branch with associated files.
+# SPEI Paper: Created Regular Polygons Rotations Experiment
+Code for the created regular polygons rotation experiment.  This experiment confirms that SPEIs is invarient to orientation using the created regular polygons.  The mgcreate custom library for Python must be obtained from "Image Operators: Image Processing in Python" by Jason Kinser. 
