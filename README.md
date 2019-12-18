@@ -1,2 +1,2 @@
-# SPEI Paper
-Code for experiments using SPEIs.  Includes the code for the 3 experiments under a data starved scenario.  The first was on created regular polygon shape images.  The second was on a subset of the NLM NIH pill dataset.  The third was a galaxy shape dataset.  Each experiment has its own branch with associated files.
+# SPEI Paper: MPEG-7 Experiment
+Code for the MPEG-7 data.  The EIs resulting from the image operators are included, alongisde the code to perform the analysis.  The mgcreate custom library for Python must be obtained from "Image Operators: Image Processing in Python" by Jason Kinser. 
