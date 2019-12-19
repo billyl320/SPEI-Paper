@@ -1,0 +1,2309 @@
+
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(xtable) #for table creation for latex
+> library(ggplot2)#for graphics
+> library(MASS)#for qda
+> library(scales)#for scientific notation
+> library(RColorBrewer) #for base r plot
+> library(class) #for base r plot
+> library(plyr)#for obtaining means by factor
+> library(e1071)#for svm
+> library(tree)#for tree based methods
+> 
+> #defining proper scientific notation
+> 
+> scientific_10 <- function(x) {
++   parse(text=gsub("e", " %*% 10^", scales::scientific_format()(x)))
++ }
+> 
+> #custom theme
+> mytheme.scat<-theme(
++ 
++ 	plot.title = element_text(size=60, face="bold", hjust = 0.5),
++ 	axis.text.x  = element_text(size=20, face="bold"),
++ 	axis.text.y=element_text(size=20, face="bold"),
++ 	axis.title.x=element_text(size=28, face='bold'),
++ 	axis.title.y=element_text(size=28, face='bold'),
++ 	strip.background=element_rect(fill="gray80"),
++ 	panel.background=element_rect(fill="gray80"),
++ 	axis.ticks= element_blank(),
++ 	axis.text=element_text(colour="black"),
++   strip.text = element_text(size=25)
++ 
++ 	)
+> 
+> #getting theoretical values
+> n <-c(3:8)
+> 
+> #matrix to hold results
+> model_rslts<-matrix(nrow=4, ncol=2, data=0)
+> colnames(model_rslts)<-c("Train", "Validation")
+> rownames(model_rslts)<-c("CNN", "QDA", "SVM", "Tree")
+> 
+> model_rslts[1,]<-c(0.95, 0.27)
+> 
+> #importing data for encircled image histograms
+> tris <- read.table("tris.txt", sep=",", header=TRUE)
+> squs <- read.table("squs.txt", sep=",", header=TRUE)
+> pens <- read.table("pens.txt", sep=",", header=TRUE)
+> hexs <- read.table("hexs.txt", sep=",", header=TRUE)
+> hepts <- read.table("hepts.txt", sep=",", header=TRUE)
+> octs <- read.table("octs.txt", sep=",", header=TRUE)
+> 
+> #rotated
+> tris_rot <- read.table("tris_rot.txt", sep=",", header=TRUE)
+> squs_rot <- read.table("squs_rot.txt", sep=",", header=TRUE)
+> pens_rot <- read.table("pens_rot.txt", sep=",", header=TRUE)
+> hexs_rot <- read.table("hexs_rot.txt", sep=",", header=TRUE)
+> hepts_rot <- read.table("hept_rot.txt", sep=",", header=TRUE)
+> octs_rot <- read.table("octs_rot.txt", sep=",", header=TRUE)
+> 
+> 
+> #cleaning data for ggplot2 and analysis
+> labs<-as.factor(c(rep(1, dim(tris)[1]), rep(2, dim(squs)[1]),
++                   rep(3, dim(pens)[1]), rep(4, dim(hexs)[1]),
++                   rep(5, dim(hepts)[1]), rep(6, dim(octs)[1]) ) )
+> 
+> mydata<-rbind(tris, squs, pens, hexs, hepts, octs)
+> 
+> #counts plot
+> temp<-as.data.frame(cbind(labs, mydata))
+> labs2<-as.factor(c(rep("n=3", dim(tris)[1]), rep("n=4", dim(squs)[1]), rep("n=5", dim(pens)[1]),
++                 rep("n=6", dim(hexs)[1]), rep("n=7", dim(hepts)[1]),   rep("n=8", dim(octs)[1]) ))
+> 
+> #rotated
+> labs_rot<-as.factor(c(rep(1, dim(tris_rot)[1]), rep(2, dim(squs_rot)[1]),
++                   rep(3, dim(pens_rot)[1]), rep(4, dim(hexs_rot)[1]),
++                   rep(5, dim(hepts_rot)[1]), rep(6, dim(octs_rot)[1]) ) )
+> 
+> mydata_rot<-rbind(tris_rot, squs_rot, pens_rot, hexs_rot, hepts_rot, octs_rot)
+> 
+> #counts plot
+> temp_rot<-as.data.frame(cbind(labs_rot, mydata_rot))
+> labs2_rot<-as.factor(c(rep("n=3", dim(tris_rot)[1]), rep("n=4", dim(squs_rot)[1]), rep("n=5", dim(pens_rot)[1]),
++                 rep("n=6", dim(hexs_rot)[1]), rep("n=7", dim(hepts_rot)[1]),   rep("n=8", dim(octs_rot)[1]) ))
+> 
+> scat<-ggplot(data=temp, aes(x = white, y = black, colour = as.factor(labs2)))+
++           geom_point(size=2)+
++ 	 	      ggtitle("EI for\nCreated Polygons")+
++ 		      xlab("White Counts")+
++ 					ylab("Black Counts")+
++ 			 		labs(colour= "Legend")+
++ 					scale_y_continuous(label=scientific_10)+
++           scale_x_continuous(label=scientific_10)+
++           mytheme.scat+
++           scale_color_discrete(breaks=c("n=3","n=4","n=5", "n=6",
++                                         "n=7", "n=8"))+
++           theme(legend.text=element_text(size=18),
++                 legend.title=element_text(size=24))
+> 
+> ggsave(filename="plots/Encircled_Image_Histograms.png", plot=scat,
++        width=9, height=7)
+> 
+> # Rotated
+> scat<-ggplot(data=temp_rot, aes(x = white, y = black, colour = as.factor(labs2_rot)))+
++           geom_point(size=2)+
++ 	 	      ggtitle("EI for\nRotated Polygons")+
++ 		      xlab("White Counts")+
++ 					ylab("Black Counts")+
++ 			 		labs(colour= "Legend")+
++ 					scale_y_continuous(label=scientific_10)+
++           scale_x_continuous(label=scientific_10)+
++           mytheme.scat+
++           scale_color_discrete(breaks=c("n=3","n=4","n=5", "n=6",
++                                         "n=7", "n=8"))+
++           theme(legend.text=element_text(size=18),
++                 legend.title=element_text(size=24))
+> 
+> ggsave(filename="plots/Encircled_Image_Histograms_Rotated.png", plot=scat,
++        width=9, height=7)
+> 
+> #setup for validation plot
+> 
+> valid_results<-matrix(nrow=4, ncol=6, data=0)
+> colnames(valid_results)<-c("n=3", "n=4", "n=5", "n=6", "n=7", "n=8")
+> rownames(valid_results)<-c("CNN", "QDA", "SVM", "Tree")
+> 
+> #setup for training plot
+> train_results<-matrix(nrow=4, ncol=6, data=0)
+> colnames(train_results)<-c("n=3", "n=4", "n=5", "n=6", "n=7", "n=8")
+> rownames(train_results)<-c("CNN", "QDA", "SVM", "Tree")
+> 
+> ##################################
+> ## training sample size = 3
+> ##################################
+> 
+> n=3
+> 
+> #cnn results for n=1
+> model_rslts[1,]<-c(0.95, 0.27)
+> 
+> 
+> #################
+> # modeling
+> #################
+> 
+> #finding those observations to train and validate on
+> 
+> set.seed(695304)
+> 
+> #initialize objects to hold results
+> qda_train<-c()
+> qda_valid<-c()
+> svm_train<-c()
+> svm_valid<-c()
+> tree_train<-c()
+> tree_valid<-c()
+> qda_valid<-c()
+> rot_valid<-c()
+> 
+> #simuiltion size
+> sim=100
+> 
+> for (i in 1:sim) {
++ 
++     train3<-sample(1:125, n)
++     train4<-sample(1:125, n)
++     train5<-sample(1:125, n)
++     train6<-sample(1:125, n)
++     train7<-sample(1:125, n)
++     train8<-sample(1:125, n)
++ 
++     mytrain<-rbind(tris[train3,], squs[train4,], pens[train5,],
++                    hexs[train6,], hepts[train7,], octs[train8,])
++ 
++     labs_train<-as.factor(c(rep(1, n), rep(2, n),
++                       rep(3, n), rep(4, n),
++                       rep(5, n), rep(6, n) ) )
++ 
++ 
++     myvalid<-rbind(tris[-train3,], squs[-train4,], pens[-train5,],
++                    hexs[-train6,], hepts[-train7,], octs[-train8,])
++ 
++     labs_valid<-as.factor(c(rep(1, 125-n), rep(2, 125-n),
++                       rep(3, 125-n), rep(4, 125-n),
++                       rep(5, 125-n), rep(6, 125-n) ) )
++ 
++     #####
++ 
++     #######
++     #QDA
++     #######
++     temp<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(temp)[1]<-"labs"
++ 
++ 
++     #creating model
++     qda.fit = qda(labs ~ white + black, data=temp)
++     #qda.fit #rank deficiency - ie unable to compute
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_train)
++     #overall classification rate for training
++     qda_train[i]<- mean(qda.class==as.factor(as.numeric(labs_train)))
++ 
++     ####
++     #now predict on validation
++     temp<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(temp)[1]<-"labs"
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_valid)
++     #overall classification rate for training
++     qda_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_valid)))
++ 
++     #rotated results
++     valid_rot<-as.data.frame(cbind(as.factor(labs_rot), mydata_rot))
++     colnames(valid_rot)[1]<-"labs"
++     qda.pred=predict(qda.fit, valid_rot)
++     qda.class = qda.pred$class
++     #table(predict=ypred_valid, truth=valid$labs)
++     rot_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_rot)))
++ 
++     #######
++     #SVM
++     #######
++ 
++     train<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(train)[1]<-"labs"
++ 
++     valid<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(valid)[1]<-"labs"
++ 
++     #creating model
++     svmfit=svm(labs ~ white + black, data=train, kernel="linear", cost=1,
++     scale=FALSE)
++ 
++     #plot(svmfit , train)
++ 
++     #summary(svmfit)
++ 
++     ypred=predict(svmfit ,train)
++     #table(predict=ypred, truth=train$labs)
++     svm_train[i]<-mean(ypred==as.factor(as.numeric(labs_train)))
++ 
++     #now on valid
++     ypred_valid=predict(svmfit ,valid)
++     #table(predict=ypred_valid, truth=valid$labs)
++     svm_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++     #model_rslts
++ 
++ 
++     ######
++     # Tree
++     #######
++ 
++     #training tree mdoel
++     treefit =tree(labs ~ white + black, data=train )
++     #summary(treefit)
++ 
++     ypred_train=predict(treefit ,train, type='class')
++     #table(predict=ypred_train, truth=as.factor(train$labs))
++     tree_train<-mean(ypred_train==as.factor((train$labs)))
++ 
++     #plot(treefit )
++     #text(treefit ,pretty =0)
++ 
++     ypred_valid=predict(treefit ,valid, type='class')
++     #table(predict=ypred_valid, truth=valid$labs)
++     tree_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++ 
++ }
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+> 
+> #################
+> ## Model Results
+> #################
+> 
+> #QDA
+> model_rslts[2,1]<-mean(qda_train)
+> model_rslts[2,2]<-mean(qda_valid)
+> 
+> #SVM
+> model_rslts[3,1]<-mean(svm_train)
+> model_rslts[3,2]<-mean(svm_valid)
+> 
+> #tree
+> model_rslts[4,1]<-mean(tree_train)
+> model_rslts[4,2]<-mean(tree_valid)
+> 
+> #rotated
+> mean(rot_valid)
+[1] 0.54788
+> 
+> sd(qda_train)
+[1] 0.05200494
+> sd(qda_valid)
+[1] 0.09579886
+> sd(svm_valid)
+[1] 0.08492332
+> sd(svm_train)
+[1] 0.05103982
+> sd(tree_train)
+[1] NA
+> sd(tree_valid)
+[1] 0.02174064
+> sd(rot_valid)
+[1] 0.08996622
+> 
+> #display results
+> model_rslts
+         Train Validation
+CNN  0.9500000  0.2700000
+QDA  0.9416667  0.6869536
+SVM  0.9655556  0.6672404
+Tree 0.6111111  0.1895492
+> 
+> xtable(model_rslts, digits=2)
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:27:19 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & Train & Validation \\ 
+  \hline
+CNN & 0.95 & 0.27 \\ 
+  QDA & 0.94 & 0.69 \\ 
+  SVM & 0.97 & 0.67 \\ 
+  Tree & 0.61 & 0.19 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> valid_results[,1]<-model_rslts[,2]
+> train_results[,1]<-model_rslts[,1]
+> 
+> ##################################
+> ## training sample size = 4
+> ##################################
+> 
+> n=4
+> 
+> #cnn results for n=1
+> model_rslts[1,]<-c(0.91, 0.30)
+> 
+> 
+> #################
+> # modeling
+> #################
+> 
+> #finding those observations to train and validate on
+> 
+> set.seed(555665)
+> 
+> #initialize objects to hold results
+> qda_train<-c()
+> qda_valid<-c()
+> svm_train<-c()
+> svm_valid<-c()
+> tree_train<-c()
+> tree_valid<-c()
+> 
+> #simuiltion size
+> sim=100
+> 
+> for (i in 1:sim) {
++ 
++     train3<-sample(1:125, n)
++     train4<-sample(1:125, n)
++     train5<-sample(1:125, n)
++     train6<-sample(1:125, n)
++     train7<-sample(1:125, n)
++     train8<-sample(1:125, n)
++ 
++     mytrain<-rbind(tris[train3,], squs[train4,], pens[train5,],
++                    hexs[train6,], hepts[train7,], octs[train8,])
++ 
++     labs_train<-as.factor(c(rep(1, n), rep(2, n),
++                       rep(3, n), rep(4, n),
++                       rep(5, n), rep(6, n) ) )
++ 
++ 
++     myvalid<-rbind(tris[-train3,], squs[-train4,], pens[-train5,],
++                    hexs[-train6,], hepts[-train7,], octs[-train8,])
++ 
++     labs_valid<-as.factor(c(rep(1, 125-n), rep(2, 125-n),
++                       rep(3, 125-n), rep(4, 125-n),
++                       rep(5, 125-n), rep(6, 125-n) ) )
++ 
++     #####
++ 
++     #######
++     #QDA
++     #######
++     temp<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(temp)[1]<-"labs"
++ 
++ 
++     #creating model
++     qda.fit = qda(labs ~ white + black, data=temp)
++     #qda.fit #rank deficiency - ie unable to compute
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_train)
++     #overall classification rate for training
++     qda_train[i]<- mean(qda.class==as.factor(as.numeric(labs_train)))
++ 
++     ####
++     #now predict on validation
++     temp<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(temp)[1]<-"labs"
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_valid)
++     #overall classification rate for training
++     qda_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_valid)))
++ 
++     #rotated results
++     valid_rot<-as.data.frame(cbind(as.factor(labs_rot), mydata_rot))
++     colnames(valid_rot)[1]<-"labs"
++     qda.pred=predict(qda.fit, valid_rot)
++     qda.class = qda.pred$class
++     #table(predict=ypred_valid, truth=valid$labs)
++     rot_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_rot)))
++ 
++     #######
++     #SVM
++     #######
++ 
++     train<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(train)[1]<-"labs"
++ 
++     valid<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(valid)[1]<-"labs"
++ 
++     #creating model
++     svmfit=svm(labs ~ white + black, data=train, kernel="linear", cost=1,
++     scale=FALSE)
++ 
++     #plot(svmfit , train)
++ 
++     #summary(svmfit)
++ 
++     ypred=predict(svmfit ,train)
++     #table(predict=ypred, truth=train$labs)
++     svm_train[i]<-mean(ypred==as.factor(as.numeric(labs_train)))
++ 
++     #now on valid
++     ypred_valid=predict(svmfit ,valid)
++     #table(predict=ypred_valid, truth=valid$labs)
++     svm_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++     #model_rslts
++ 
++ 
++     ######
++     # Tree
++     #######
++ 
++     #training tree mdoel
++     treefit =tree(labs ~ white + black, data=train )
++     #summary(treefit)
++ 
++     ypred_train=predict(treefit ,train, type='class')
++     #table(predict=ypred_train, truth=as.factor(train$labs))
++     tree_train<-mean(ypred_train==as.factor((train$labs)))
++ 
++     #plot(treefit )
++     #text(treefit ,pretty =0)
++ 
++     ypred_valid=predict(treefit ,valid, type='class')
++     #table(predict=ypred_valid, truth=valid$labs)
++     tree_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++ 
++ }
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+> 
+> #################
+> ## Model Results
+> #################
+> 
+> #QDA
+> model_rslts[2,1]<-mean(qda_train)
+> model_rslts[2,2]<-mean(qda_valid)
+> 
+> #SVM
+> model_rslts[3,1]<-mean(svm_train)
+> model_rslts[3,2]<-mean(svm_valid)
+> 
+> #tree
+> model_rslts[4,1]<-mean(tree_train)
+> model_rslts[4,2]<-mean(tree_valid)
+> 
+> #rotated
+> mean(rot_valid)
+[1] 0.6154467
+> 
+> sd(qda_train)
+[1] 0.05252298
+> sd(qda_valid)
+[1] 0.06199862
+> sd(svm_valid)
+[1] 0.07262119
+> sd(svm_train)
+[1] 0.06542805
+> sd(tree_train)
+[1] NA
+> sd(tree_valid)
+[1] 0.02167548
+> sd(rot_valid)
+[1] 0.06695212
+> 
+> #display results
+> model_rslts
+         Train Validation
+CNN  0.9100000  0.3000000
+QDA  0.9112500  0.7699862
+SVM  0.9512500  0.7102204
+Tree 0.4166667  0.2030165
+> 
+> xtable(model_rslts, digits=2)
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:28:07 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & Train & Validation \\ 
+  \hline
+CNN & 0.91 & 0.30 \\ 
+  QDA & 0.91 & 0.77 \\ 
+  SVM & 0.95 & 0.71 \\ 
+  Tree & 0.42 & 0.20 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> valid_results[,2]<-model_rslts[,2]
+> train_results[,2]<-model_rslts[,1]
+> 
+> 
+> ##################################
+> ## training sample size = 5
+> ##################################
+> 
+> n=5
+> 
+> #cnn results for n=1
+> model_rslts[1,]<-c(0.86, 0.32)
+> 
+> 
+> #################
+> # modeling
+> #################
+> 
+> #finding those observations to train and validate on
+> 
+> set.seed(723019)
+> 
+> #initialize objects to hold results
+> qda_train<-c()
+> qda_valid<-c()
+> svm_train<-c()
+> svm_valid<-c()
+> tree_train<-c()
+> tree_valid<-c()
+> 
+> #simuiltion size
+> sim=100
+> 
+> for (i in 1:sim) {
++ 
++     train3<-sample(1:125, n)
++     train4<-sample(1:125, n)
++     train5<-sample(1:125, n)
++     train6<-sample(1:125, n)
++     train7<-sample(1:125, n)
++     train8<-sample(1:125, n)
++ 
++     mytrain<-rbind(tris[train3,], squs[train4,], pens[train5,],
++                    hexs[train6,], hepts[train7,], octs[train8,])
++ 
++     labs_train<-as.factor(c(rep(1, n), rep(2, n),
++                       rep(3, n), rep(4, n),
++                       rep(5, n), rep(6, n) ) )
++ 
++ 
++     myvalid<-rbind(tris[-train3,], squs[-train4,], pens[-train5,],
++                    hexs[-train6,], hepts[-train7,], octs[-train8,])
++ 
++     labs_valid<-as.factor(c(rep(1, 125-n), rep(2, 125-n),
++                       rep(3, 125-n), rep(4, 125-n),
++                       rep(5, 125-n), rep(6, 125-n) ) )
++ 
++     #####
++ 
++     #######
++     #QDA
++     #######
++     temp<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(temp)[1]<-"labs"
++ 
++ 
++     #creating model
++     qda.fit = qda(labs ~ white + black, data=temp)
++     #qda.fit #rank deficiency - ie unable to compute
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_train)
++     #overall classification rate for training
++     qda_train[i]<- mean(qda.class==as.factor(as.numeric(labs_train)))
++ 
++     ####
++     #now predict on validation
++     temp<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(temp)[1]<-"labs"
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_valid)
++     #overall classification rate for training
++     qda_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_valid)))
++ 
++     #rotated results
++     valid_rot<-as.data.frame(cbind(as.factor(labs_rot), mydata_rot))
++     colnames(valid_rot)[1]<-"labs"
++     qda.pred=predict(qda.fit, valid_rot)
++     qda.class = qda.pred$class
++     #table(predict=ypred_valid, truth=valid$labs)
++     rot_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_rot)))
++ 
++     #######
++     #SVM
++     #######
++ 
++     train<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(train)[1]<-"labs"
++ 
++     valid<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(valid)[1]<-"labs"
++ 
++     #creating model
++     svmfit=svm(labs ~ white + black, data=train, kernel="linear", cost=1,
++     scale=FALSE)
++ 
++     #plot(svmfit , train)
++ 
++     #summary(svmfit)
++ 
++     ypred=predict(svmfit ,train)
++     #table(predict=ypred, truth=train$labs)
++     svm_train[i]<-mean(ypred==as.factor(as.numeric(labs_train)))
++ 
++     #now on valid
++     ypred_valid=predict(svmfit ,valid)
++     #table(predict=ypred_valid, truth=valid$labs)
++     svm_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++     #model_rslts
++ 
++ 
++     ######
++     # Tree
++     #######
++ 
++     #training tree mdoel
++     treefit =tree(labs ~ white + black, data=train )
++     #summary(treefit)
++ 
++     ypred_train=predict(treefit ,train, type='class')
++     #table(predict=ypred_train, truth=as.factor(train$labs))
++     tree_train<-mean(ypred_train==as.factor((train$labs)))
++ 
++     #plot(treefit )
++     #text(treefit ,pretty =0)
++ 
++     ypred_valid=predict(treefit ,valid, type='class')
++     #table(predict=ypred_valid, truth=valid$labs)
++     tree_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++ 
++ }
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+> 
+> #################
+> ## Model Results
+> #################
+> 
+> #QDA
+> model_rslts[2,1]<-mean(qda_train)
+> model_rslts[2,2]<-mean(qda_valid)
+> 
+> #SVM
+> model_rslts[3,1]<-mean(svm_train)
+> model_rslts[3,2]<-mean(svm_valid)
+> 
+> #tree
+> model_rslts[4,1]<-mean(tree_train)
+> model_rslts[4,2]<-mean(tree_valid)
+> 
+> #rotated
+> mean(rot_valid)
+[1] 0.644
+> 
+> sd(qda_train)
+[1] 0.05852278
+> sd(qda_valid)
+[1] 0.04507393
+> sd(svm_valid)
+[1] 0.05724338
+> sd(svm_train)
+[1] 0.05861859
+> sd(tree_train)
+[1] NA
+> sd(tree_valid)
+[1] 0.02239027
+> sd(rot_valid)
+[1] 0.06198896
+> 
+> #display results
+> model_rslts
+         Train Validation
+CNN  0.8600000  0.3200000
+QDA  0.8926667  0.8044444
+SVM  0.9426667  0.7548056
+Tree 0.3333333  0.2113611
+> 
+> xtable(model_rslts, digits=2)
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:29:12 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & Train & Validation \\ 
+  \hline
+CNN & 0.86 & 0.32 \\ 
+  QDA & 0.89 & 0.80 \\ 
+  SVM & 0.94 & 0.75 \\ 
+  Tree & 0.33 & 0.21 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> valid_results[,3]<-model_rslts[,2]
+> train_results[,3]<-model_rslts[,1]
+> 
+> 
+> 
+> ##################################
+> ## training sample size = 6
+> ##################################
+> 
+> n=6
+> 
+> #cnn results for n=20
+> model_rslts[1,]<-c(0.92, 0.37)
+> 
+> 
+> #################
+> # modeling
+> #################
+> 
+> #finding those observations to train and validate on
+> 
+> set.seed(442644)
+> 
+> #initialize objects to hold results
+> qda_train<-c()
+> qda_valid<-c()
+> svm_train<-c()
+> svm_valid<-c()
+> tree_train<-c()
+> tree_valid<-c()
+> 
+> #simuiltion size
+> sim=100
+> 
+> for (i in 1:sim) {
++ 
++     train3<-sample(1:125, n)
++     train4<-sample(1:125, n)
++     train5<-sample(1:125, n)
++     train6<-sample(1:125, n)
++     train7<-sample(1:125, n)
++     train8<-sample(1:125, n)
++ 
++     mytrain<-rbind(tris[train3,], squs[train4,], pens[train5,],
++                    hexs[train6,], hepts[train7,], octs[train8,])
++ 
++     labs_train<-as.factor(c(rep(1, n), rep(2, n),
++                       rep(3, n), rep(4, n),
++                       rep(5, n), rep(6, n) ) )
++ 
++ 
++     myvalid<-rbind(tris[-train3,], squs[-train4,], pens[-train5,],
++                    hexs[-train6,], hepts[-train7,], octs[-train8,])
++ 
++     labs_valid<-as.factor(c(rep(1, 125-n), rep(2, 125-n),
++                       rep(3, 125-n), rep(4, 125-n),
++                       rep(5, 125-n), rep(6, 125-n) ) )
++ 
++     #####
++ 
++     #######
++     #QDA
++     #######
++     temp<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(temp)[1]<-"labs"
++ 
++ 
++     #creating model
++     qda.fit = qda(labs ~ white + black, data=temp)
++     #qda.fit #rank deficiency - ie unable to compute
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_train)
++     #overall classification rate for training
++     qda_train[i]<- mean(qda.class==as.factor(as.numeric(labs_train)))
++ 
++     ####
++     #now predict on validation
++     temp<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(temp)[1]<-"labs"
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_valid)
++     #overall classification rate for training
++     qda_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_valid)))
++ 
++     #rotated results
++     valid_rot<-as.data.frame(cbind(as.factor(labs_rot), mydata_rot))
++     colnames(valid_rot)[1]<-"labs"
++     qda.pred=predict(qda.fit, valid_rot)
++     qda.class = qda.pred$class
++     #table(predict=ypred_valid, truth=valid$labs)
++     rot_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_rot)))
++ 
++     #######
++     #SVM
++     #######
++ 
++     train<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(train)[1]<-"labs"
++ 
++     valid<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(valid)[1]<-"labs"
++ 
++     #creating model
++     svmfit=svm(labs ~ white + black, data=train, kernel="linear", cost=1,
++     scale=FALSE)
++ 
++     #plot(svmfit , train)
++ 
++     #summary(svmfit)
++ 
++     ypred=predict(svmfit ,train)
++     #table(predict=ypred, truth=train$labs)
++     svm_train[i]<-mean(ypred==as.factor(as.numeric(labs_train)))
++ 
++     #now on valid
++     ypred_valid=predict(svmfit ,valid)
++     #table(predict=ypred_valid, truth=valid$labs)
++     svm_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++     #model_rslts
++ 
++ 
++     ######
++     # Tree
++     #######
++ 
++     #training tree mdoel
++     treefit =tree(labs ~ white + black, data=train )
++     #summary(treefit)
++ 
++     ypred_train=predict(treefit ,train, type='class')
++     #table(predict=ypred_train, truth=as.factor(train$labs))
++     tree_train<-mean(ypred_train==as.factor((train$labs)))
++ 
++     #plot(treefit )
++     #text(treefit ,pretty =0)
++ 
++     ypred_valid=predict(treefit ,valid, type='class')
++     #table(predict=ypred_valid, truth=valid$labs)
++     tree_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++ 
++ }
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+> 
+> #################
+> ## Model Results
+> #################
+> 
+> #QDA
+> model_rslts[2,1]<-mean(qda_train)
+> model_rslts[2,2]<-mean(qda_valid)
+> 
+> #SVM
+> model_rslts[3,1]<-mean(svm_train)
+> model_rslts[3,2]<-mean(svm_valid)
+> 
+> #tree
+> model_rslts[4,1]<-mean(tree_train)
+> model_rslts[4,2]<-mean(tree_valid)
+> 
+> #rotated
+> mean(rot_valid)
+[1] 0.6547733
+> 
+> sd(qda_train)
+[1] 0.0504647
+> sd(qda_valid)
+[1] 0.02323037
+> sd(svm_valid)
+[1] 0.04607695
+> sd(svm_train)
+[1] 0.05983191
+> sd(tree_train)
+[1] NA
+> sd(tree_valid)
+[1] 0.02122074
+> sd(rot_valid)
+[1] 0.04251137
+> 
+> #display results
+> model_rslts
+         Train Validation
+CNN  0.9200000  0.3700000
+QDA  0.8819444  0.8237255
+SVM  0.9341667  0.7776331
+Tree 0.4722222  0.2246218
+> 
+> xtable(model_rslts, digits=2)
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:30:42 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & Train & Validation \\ 
+  \hline
+CNN & 0.92 & 0.37 \\ 
+  QDA & 0.88 & 0.82 \\ 
+  SVM & 0.93 & 0.78 \\ 
+  Tree & 0.47 & 0.22 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> valid_results[,4]<-model_rslts[,2]
+> train_results[,4]<-model_rslts[,1]
+> 
+> 
+> 
+> ##################################
+> ## training sample size = 7
+> ##################################
+> 
+> n=7
+> 
+> #cnn results for n=25
+> model_rslts[1,]<-c(0.94, 0.42)
+> 
+> 
+> #################
+> # modeling
+> #################
+> 
+> #finding those observations to train and validate on
+> 
+> set.seed(459237)
+> 
+> #initialize objects to hold results
+> qda_train<-c()
+> qda_valid<-c()
+> svm_train<-c()
+> svm_valid<-c()
+> tree_train<-c()
+> tree_valid<-c()
+> 
+> #simuiltion size
+> sim=100
+> 
+> for (i in 1:sim) {
++ 
++     train3<-sample(1:125, n)
++     train4<-sample(1:125, n)
++     train5<-sample(1:125, n)
++     train6<-sample(1:125, n)
++     train7<-sample(1:125, n)
++     train8<-sample(1:125, n)
++ 
++     mytrain<-rbind(tris[train3,], squs[train4,], pens[train5,],
++                    hexs[train6,], hepts[train7,], octs[train8,])
++ 
++     labs_train<-as.factor(c(rep(1, n), rep(2, n),
++                       rep(3, n), rep(4, n),
++                       rep(5, n), rep(6, n) ) )
++ 
++ 
++     myvalid<-rbind(tris[-train3,], squs[-train4,], pens[-train5,],
++                    hexs[-train6,], hepts[-train7,], octs[-train8,])
++ 
++     labs_valid<-as.factor(c(rep(1, 125-n), rep(2, 125-n),
++                       rep(3, 125-n), rep(4, 125-n),
++                       rep(5, 125-n), rep(6, 125-n) ) )
++ 
++     #####
++ 
++     #######
++     #QDA
++     #######
++     temp<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(temp)[1]<-"labs"
++ 
++ 
++     #creating model
++     qda.fit = qda(labs ~ white + black, data=temp)
++     #qda.fit #rank deficiency - ie unable to compute
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_train)
++     #overall classification rate for training
++     qda_train[i]<- mean(qda.class==as.factor(as.numeric(labs_train)))
++ 
++     ####
++     #now predict on validation
++     temp<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(temp)[1]<-"labs"
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_valid)
++     #overall classification rate for training
++     qda_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_valid)))
++ 
++     #rotated results
++     valid_rot<-as.data.frame(cbind(as.factor(labs_rot), mydata_rot))
++     colnames(valid_rot)[1]<-"labs"
++     qda.pred=predict(qda.fit, valid_rot)
++     qda.class = qda.pred$class
++     #table(predict=ypred_valid, truth=valid$labs)
++     rot_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_rot)))
++ 
++     #######
++     #SVM
++     #######
++ 
++     train<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(train)[1]<-"labs"
++ 
++     valid<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(valid)[1]<-"labs"
++ 
++     #creating model
++     svmfit=svm(labs ~ white + black, data=train, kernel="linear", cost=1,
++     scale=FALSE)
++ 
++     #plot(svmfit , train)
++ 
++     #summary(svmfit)
++ 
++     ypred=predict(svmfit ,train)
++     #table(predict=ypred, truth=train$labs)
++     svm_train[i]<-mean(ypred==as.factor(as.numeric(labs_train)))
++ 
++     #now on valid
++     ypred_valid=predict(svmfit ,valid)
++     #table(predict=ypred_valid, truth=valid$labs)
++     svm_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++     #model_rslts
++ 
++ 
++     ######
++     # Tree
++     #######
++ 
++     #training tree mdoel
++     treefit =tree(labs ~ white + black, data=train )
++     #summary(treefit)
++ 
++     ypred_train=predict(treefit ,train, type='class')
++     #table(predict=ypred_train, truth=as.factor(train$labs))
++     tree_train<-mean(ypred_train==as.factor((train$labs)))
++ 
++     #plot(treefit )
++     #text(treefit ,pretty =0)
++ 
++     ypred_valid=predict(treefit ,valid, type='class')
++     #table(predict=ypred_valid, truth=valid$labs)
++     tree_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++ 
++ }
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+> 
+> #################
+> ## Model Results
+> #################
+> 
+> #QDA
+> model_rslts[2,1]<-mean(qda_train)
+> model_rslts[2,2]<-mean(qda_valid)
+> 
+> #SVM
+> model_rslts[3,1]<-mean(svm_train)
+> model_rslts[3,2]<-mean(svm_valid)
+> 
+> #tree
+> model_rslts[4,1]<-mean(tree_train)
+> model_rslts[4,2]<-mean(tree_valid)
+> 
+> #rotated
+> mean(rot_valid)
+[1] 0.6628467
+> 
+> sd(qda_train)
+[1] 0.04635837
+> sd(qda_valid)
+[1] 0.02196557
+> sd(svm_valid)
+[1] 0.0392934
+> sd(svm_train)
+[1] 0.05862428
+> sd(tree_train)
+[1] NA
+> sd(tree_valid)
+[1] 0.02369099
+> sd(rot_valid)
+[1] 0.04951517
+> 
+> #display results
+> model_rslts
+         Train Validation
+CNN  0.9400000  0.4200000
+QDA  0.8778571  0.8302825
+SVM  0.9264286  0.7833475
+Tree 0.5952381  0.2350989
+> 
+> xtable(model_rslts, digits=2)
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:32:30 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & Train & Validation \\ 
+  \hline
+CNN & 0.94 & 0.42 \\ 
+  QDA & 0.88 & 0.83 \\ 
+  SVM & 0.93 & 0.78 \\ 
+  Tree & 0.60 & 0.24 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> valid_results[,5]<-model_rslts[,2]
+> train_results[,5]<-model_rslts[,1]
+> 
+> 
+> ##################################
+> ## training sample size = 8
+> ##################################
+> 
+> n=8
+> 
+> #cnn results for n=1
+> model_rslts[1,]<-c(0.92, 0.46)
+> 
+> 
+> #################
+> # modeling
+> #################
+> 
+> #finding those observations to train and validate on
+> 
+> set.seed(326668)
+> 
+> #initialize objects to hold results
+> qda_train<-c()
+> qda_valid<-c()
+> svm_train<-c()
+> svm_valid<-c()
+> tree_train<-c()
+> tree_valid<-c()
+> 
+> #simuiltion size
+> sim=100
+> 
+> for (i in 1:sim) {
++ 
++     train3<-sample(1:125, n)
++     train4<-sample(1:125, n)
++     train5<-sample(1:125, n)
++     train6<-sample(1:125, n)
++     train7<-sample(1:125, n)
++     train8<-sample(1:125, n)
++ 
++     mytrain<-rbind(tris[train3,], squs[train4,], pens[train5,],
++                    hexs[train6,], hepts[train7,], octs[train8,])
++ 
++     labs_train<-as.factor(c(rep(1, n), rep(2, n),
++                       rep(3, n), rep(4, n),
++                       rep(5, n), rep(6, n) ) )
++ 
++ 
++     myvalid<-rbind(tris[-train3,], squs[-train4,], pens[-train5,],
++                    hexs[-train6,], hepts[-train7,], octs[-train8,])
++ 
++     labs_valid<-as.factor(c(rep(1, 125-n), rep(2, 125-n),
++                       rep(3, 125-n), rep(4, 125-n),
++                       rep(5, 125-n), rep(6, 125-n) ) )
++ 
++     #####
++ 
++     #######
++     #QDA
++     #######
++     temp<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(temp)[1]<-"labs"
++ 
++ 
++     #creating model
++     qda.fit = qda(labs ~ white + black, data=temp)
++     #qda.fit #rank deficiency - ie unable to compute
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_train)
++     #overall classification rate for training
++     qda_train[i]<- mean(qda.class==as.factor(as.numeric(labs_train)))
++ 
++     ####
++     #now predict on validation
++     temp<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(temp)[1]<-"labs"
++ 
++     #predicting
++     qda.pred=predict(qda.fit, temp)
++     qda.class = qda.pred$class
++ 
++     #results
++     #table(qda.class, labs_valid)
++     #overall classification rate for training
++     qda_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_valid)))
++ 
++     #rotated results
++     valid_rot<-as.data.frame(cbind(as.factor(labs_rot), mydata_rot))
++     colnames(valid_rot)[1]<-"labs"
++     qda.pred=predict(qda.fit, valid_rot)
++     qda.class = qda.pred$class
++     #table(predict=ypred_valid, truth=valid$labs)
++     rot_valid[i]<-mean(qda.class==as.factor(as.numeric(labs_rot)))
++ 
++     #######
++     #SVM
++     #######
++ 
++     train<-as.data.frame(cbind(as.factor(labs_train), mytrain))
++     colnames(train)[1]<-"labs"
++ 
++     valid<-as.data.frame(cbind(as.factor(labs_valid), myvalid))
++     colnames(valid)[1]<-"labs"
++ 
++     #creating model
++     svmfit=svm(labs ~ white + black, data=train, kernel="linear", cost=1,
++     scale=FALSE)
++ 
++     #plot(svmfit , train)
++ 
++     #summary(svmfit)
++ 
++     ypred=predict(svmfit ,train)
++     #table(predict=ypred, truth=train$labs)
++     svm_train[i]<-mean(ypred==as.factor(as.numeric(labs_train)))
++ 
++     #now on valid
++     ypred_valid=predict(svmfit ,valid)
++     #table(predict=ypred_valid, truth=valid$labs)
++     svm_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++     #model_rslts
++ 
++ 
++     ######
++     # Tree
++     #######
++ 
++     #training tree mdoel
++     treefit =tree(labs ~ white + black, data=train )
++     #summary(treefit)
++ 
++     ypred_train=predict(treefit ,train, type='class')
++     #table(predict=ypred_train, truth=as.factor(train$labs))
++     tree_train<-mean(ypred_train==as.factor((train$labs)))
++ 
++     #plot(treefit )
++     #text(treefit ,pretty =0)
++ 
++     ypred_valid=predict(treefit ,valid, type='class')
++     #table(predict=ypred_valid, truth=valid$labs)
++     tree_valid[i]<-mean(ypred_valid==as.factor(as.numeric(labs_valid)))
++ 
++ }
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+
+WARNING: reaching max number of iterations
+> 
+> #################
+> ## Model Results
+> #################
+> 
+> #QDA
+> model_rslts[2,1]<-mean(qda_train)
+> model_rslts[2,2]<-mean(qda_valid)
+> 
+> #SVM
+> model_rslts[3,1]<-mean(svm_train)
+> model_rslts[3,2]<-mean(svm_valid)
+> 
+> #tree
+> model_rslts[4,1]<-mean(tree_train)
+> model_rslts[4,2]<-mean(tree_valid)
+> 
+> #rotated
+> mean(rot_valid)
+[1] 0.6812733
+> 
+> sd(qda_train)
+[1] 0.04703385
+> sd(qda_valid)
+[1] 0.02135612
+> sd(svm_valid)
+[1] 0.05255849
+> sd(svm_train)
+[1] 0.06611329
+> sd(tree_train)
+[1] NA
+> sd(tree_valid)
+[1] 0.02469262
+> sd(rot_valid)
+[1] 0.04662009
+> 
+> #display results
+> model_rslts
+         Train Validation
+CNN  0.9200000  0.4600000
+QDA  0.8793750  0.8294302
+SVM  0.9145833  0.7945726
+Tree 0.5208333  0.2459259
+> 
+> xtable(model_rslts, digits=2)
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:34:29 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & Train & Validation \\ 
+  \hline
+CNN & 0.92 & 0.46 \\ 
+  QDA & 0.88 & 0.83 \\ 
+  SVM & 0.91 & 0.79 \\ 
+  Tree & 0.52 & 0.25 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> valid_results[,6]<-model_rslts[,2]
+> train_results[,6]<-model_rslts[,1]
+> 
+> 
+> train_results
+           n=3       n=4       n=5       n=6       n=7       n=8
+CNN  0.9500000 0.9100000 0.8600000 0.9200000 0.9400000 0.9200000
+QDA  0.9416667 0.9112500 0.8926667 0.8819444 0.8778571 0.8793750
+SVM  0.9655556 0.9512500 0.9426667 0.9341667 0.9264286 0.9145833
+Tree 0.6111111 0.4166667 0.3333333 0.4722222 0.5952381 0.5208333
+> 
+> valid_results
+           n=3       n=4       n=5       n=6       n=7       n=8
+CNN  0.2700000 0.3000000 0.3200000 0.3700000 0.4200000 0.4600000
+QDA  0.6869536 0.7699862 0.8044444 0.8237255 0.8302825 0.8294302
+SVM  0.6672404 0.7102204 0.7548056 0.7776331 0.7833475 0.7945726
+Tree 0.1895492 0.2030165 0.2113611 0.2246218 0.2350989 0.2459259
+> 
+> xtable(valid_results)
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:34:29 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrr}
+  \hline
+ & n=3 & n=4 & n=5 & n=6 & n=7 & n=8 \\ 
+  \hline
+CNN & 0.27 & 0.30 & 0.32 & 0.37 & 0.42 & 0.46 \\ 
+  QDA & 0.69 & 0.77 & 0.80 & 0.82 & 0.83 & 0.83 \\ 
+  SVM & 0.67 & 0.71 & 0.75 & 0.78 & 0.78 & 0.79 \\ 
+  Tree & 0.19 & 0.20 & 0.21 & 0.22 & 0.24 & 0.25 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> xtable(train_results)
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:34:29 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrr}
+  \hline
+ & n=3 & n=4 & n=5 & n=6 & n=7 & n=8 \\ 
+  \hline
+CNN & 0.95 & 0.91 & 0.86 & 0.92 & 0.94 & 0.92 \\ 
+  QDA & 0.94 & 0.91 & 0.89 & 0.88 & 0.88 & 0.88 \\ 
+  SVM & 0.97 & 0.95 & 0.94 & 0.93 & 0.93 & 0.91 \\ 
+  Tree & 0.61 & 0.42 & 0.33 & 0.47 & 0.60 & 0.52 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> ultima<-as.data.frame(rbind(train_results, valid_results))
+> 
+> fcts<-as.factor(c(rep(1, 4), rep(2, 4)))
+> 
+> ultima<-cbind(ultima, fcts)
+Warning message:
+In data.row.names(row.names, rowsi, i) :
+  some row.names duplicated: 5,6,7,8 --> row.names NOT used
+> 
+> ultima
+        n=3       n=4       n=5       n=6       n=7       n=8 fcts
+1 0.9500000 0.9100000 0.8600000 0.9200000 0.9400000 0.9200000    1
+2 0.9416667 0.9112500 0.8926667 0.8819444 0.8778571 0.8793750    1
+3 0.9655556 0.9512500 0.9426667 0.9341667 0.9264286 0.9145833    1
+4 0.6111111 0.4166667 0.3333333 0.4722222 0.5952381 0.5208333    1
+5 0.2700000 0.3000000 0.3200000 0.3700000 0.4200000 0.4600000    2
+6 0.6869536 0.7699862 0.8044444 0.8237255 0.8302825 0.8294302    2
+7 0.6672404 0.7102204 0.7548056 0.7776331 0.7833475 0.7945726    2
+8 0.1895492 0.2030165 0.2113611 0.2246218 0.2350989 0.2459259    2
+> 
+> xtable(ultima)
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:34:29 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrl}
+  \hline
+ & n=3 & n=4 & n=5 & n=6 & n=7 & n=8 & fcts \\ 
+  \hline
+1 & 0.95 & 0.91 & 0.86 & 0.92 & 0.94 & 0.92 & 1 \\ 
+  2 & 0.94 & 0.91 & 0.89 & 0.88 & 0.88 & 0.88 & 1 \\ 
+  3 & 0.97 & 0.95 & 0.94 & 0.93 & 0.93 & 0.91 & 1 \\ 
+  4 & 0.61 & 0.42 & 0.33 & 0.47 & 0.60 & 0.52 & 1 \\ 
+  5 & 0.27 & 0.30 & 0.32 & 0.37 & 0.42 & 0.46 & 2 \\ 
+  6 & 0.69 & 0.77 & 0.80 & 0.82 & 0.83 & 0.83 & 2 \\ 
+  7 & 0.67 & 0.71 & 0.75 & 0.78 & 0.78 & 0.79 & 2 \\ 
+  8 & 0.19 & 0.20 & 0.21 & 0.22 & 0.24 & 0.25 & 2 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> 
+> #final results plot
+> 
+> models<-( rep(c("CNN","QDA", "SVM", "Tree" ), 12 ) )
+> set<-( rep(c(rep("Training", 4), rep("Validation", 4)), 6) )
+> acc<-c(ultima[,1], ultima[,2], ultima[,3],
++        ultima[,4], ultima[,5], ultima[,6])
+> samp<-c( rep(3.0, 8), rep(4.0, 8),rep(5.0, 8),
++          rep(6.0, 8), rep(7.0, 8), rep(8.0, 8))
+> mydata<-as.data.frame(cbind(models, (acc), set, as.numeric(samp) ) )
+> 
+> colnames(mydata)[2]<-"Acc"
+> colnames(mydata)[4]<-"Samp"
+> 
+> 
+> ultima_plot<-ggplot(data=mydata,
++             aes(x = as.numeric(as.character(mydata$Samp)),
++                 y = as.numeric(as.character(mydata$Acc)),
++                 colour = as.factor(mydata$models),
++                 shape= as.factor(mydata$set),
++                 linetype= as.factor(mydata$set),
++                 group=interaction(as.factor(mydata$models), as.factor(mydata$set))
++                 ) )+
++           geom_point(size=4)+
++           geom_line(size=2 )+
++           #geom_ribbon(aes(ymin=temp$lower, ymax=temp$upper), linetype=2, alpha=0.1)+
++ 	 	  ggtitle("Overall Results for\nCreated Polygons")+
++ 		  xlab("Training Size")+
++ 		  ylab("Overall Accuracy")+
++ 		  labs(colour= "Model", shape="Data Set", linetype="Data Set")+
++ 	      #scale_y_discrete(limits=c(0, 1.00))+
++           #scale_x_discrete(breaks=c(3, 4, 5, 7, 10, 20))+
++           mytheme.scat+
++           scale_colour_manual(values = c("Red", "Blue", "Green", "khaki2"))+
++           #scale_color_discrete(breaks=c("Training", "Validation"))+
++           theme(legend.text=element_text(size=18),
++                 legend.title=element_text(size=24))
+> 
+> ultima_plot
+> 
+> ggsave(filename="plots/OverallAcc_poly.png", plot=ultima_plot,
++        width=9, height=7)
+> 
+> 
+> ##########################
+> # Empirical SP Estimation
+> ##########################
+> 
+> mydata2<-rbind(tris, squs, pens, hexs, hepts, octs)
+> 
+> labs<-as.factor(c(rep(1, dim(tris)[1]), rep(2, dim(squs)[1]),
++                   rep(3, dim(pens)[1]), rep(4, dim(hexs)[1]),
++                   rep(5, dim(hepts)[1]), rep(6, dim(octs)[1]) ) )
+> 
+> sps<-mydata2[,1]/rowSums(mydata2)
+> aggregate(sps~labs, FUN=mean)
+  labs       sps
+1    1 0.3237220
+2    2 0.5073147
+3    3 0.5625297
+4    4 0.6321554
+5    5 0.6404110
+6    6 0.6909195
+> xtable(aggregate(sps~labs, FUN=sd))
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:34:31 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & labs & sps \\ 
+  \hline
+1 & 1 & 0.01 \\ 
+  2 & 2 & 0.03 \\ 
+  3 & 3 & 0.04 \\ 
+  4 & 4 & 0.03 \\ 
+  5 & 5 & 0.07 \\ 
+  6 & 6 & 0.03 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> mydata3<-rbind(tris_rot, squs_rot, pens_rot, hexs_rot, hepts_rot, octs_rot)
+> 
+> labs<-as.factor(c(rep(1, dim(tris_rot)[1]), rep(2, dim(squs_rot)[1]),
++                   rep(3, dim(pens_rot)[1]), rep(4, dim(hexs_rot)[1]),
++                   rep(5, dim(hepts_rot)[1]), rep(6, dim(octs_rot)[1]) ) )
+> 
+> sps<-mydata3[,1]/rowSums(mydata3)
+> aggregate(sps~labs_rot, FUN=mean)
+  labs_rot       sps
+1        1 0.3159948
+2        2 0.4712995
+3        3 0.5589779
+4        4 0.6021048
+5        5 0.6314626
+6        6 0.6530846
+> xtable(aggregate(sps~labs_rot, FUN=sd))
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Wed Dec 18 19:34:31 2019
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & labs\_rot & sps \\ 
+  \hline
+1 & 1 & 0.02 \\ 
+  2 & 2 & 0.04 \\ 
+  3 & 3 & 0.05 \\ 
+  4 & 4 & 0.07 \\ 
+  5 & 5 & 0.07 \\ 
+  6 & 6 & 0.07 \\ 
+   \hline
+\end{tabular}
+\end{table}
+> 
+> proc.time()
+   user  system elapsed 
+460.454   2.859 466.737 
