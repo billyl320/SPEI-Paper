@@ -1,0 +1,66 @@
+##################################
+Results for n=10
+Mean Training
+0.25
+SD Training
+0.0
+Mean Testing
+0.17217950146736505
+SD Training
+0.0
+##################################
+##################################
+Results for n=50
+Mean Training
+0.24
+SD Training
+0.0
+Mean Testing
+0.18403792526491913
+SD Training
+0.0
+##################################
+##################################
+Results for n=100
+Mean Training
+0.17
+SD Training
+0.0
+Mean Testing
+0.16825237297599108
+SD Training
+0.0
+##################################
+##################################
+Results for n=250
+Mean Training
+0.16666666666666666
+SD Training
+0.0
+Mean Testing
+0.16666666666666666
+SD Training
+0.0
+##################################
+##################################
+Results for n=1000
+Mean Training
+0.169
+SD Training
+0.0
+Mean Testing
+0.1694017094017094
+SD Training
+0.0
+##################################
+##################################
+Results for n=5000
+Mean Training
+0.16666666666666666
+SD Training
+0.0
+Mean Testing
+0.16666666666666666
+SD Training
+0.0
+##################################
