@@ -1,7 +1,7 @@
 
 R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
 Copyright (C) 2018 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -238,7 +238,7 @@ Type 'q()' to quit R.
 + 
 +     ypred_train=predict(treefit ,train, type='class')
 +     #table(predict=ypred_train, truth=as.factor(train$labs))
-+     tree_train<-mean(ypred_train==as.factor((train$labs)))
++     tree_train[i]<-mean(ypred_train==as.factor(as.numeric(labs_train)))
 + 
 +     #plot(treefit )
 +     #text(treefit ,pretty =0)
@@ -312,7 +312,7 @@ WARNING: reaching max number of iterations
 > sd(svm_train)
 [1] 0.05714614
 > sd(tree_train)
-[1] NA
+[1] 0.08078019
 > sd(tree_valid)
 [1] 0.01941853
 > 
@@ -323,11 +323,11 @@ WARNING: reaching max number of iterations
 CNN  0.9500000  0.2700000
 QDA  0.9383333  0.7042486
 SVM  0.9638889  0.6616120
-Tree 0.3333333  0.1901366
+Tree 0.3961111  0.1901366
 > 
 > xtable(model_rslts, digits=2)
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Jul 29 14:04:21 2019
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Tue Mar  3 15:49:09 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrr}
@@ -337,7 +337,7 @@ Tree 0.3333333  0.1901366
 CNN & 0.95 & 0.27 \\ 
   QDA & 0.94 & 0.70 \\ 
   SVM & 0.96 & 0.66 \\ 
-  Tree & 0.33 & 0.19 \\ 
+  Tree & 0.40 & 0.19 \\ 
    \hline
 \end{tabular}
 \end{table}
@@ -473,7 +473,7 @@ CNN & 0.95 & 0.27 \\
 + 
 +     ypred_train=predict(treefit ,train, type='class')
 +     #table(predict=ypred_train, truth=as.factor(train$labs))
-+     tree_train<-mean(ypred_train==as.factor((train$labs)))
++     tree_train[i]<-mean(ypred_train==as.factor(as.numeric(labs_train)))
 + 
 +     #plot(treefit )
 +     #text(treefit ,pretty =0)
@@ -571,7 +571,7 @@ WARNING: reaching max number of iterations
 > sd(svm_train)
 [1] 0.04887016
 > sd(tree_train)
-[1] NA
+[1] 0.07307552
 > sd(tree_valid)
 [1] 0.02013179
 > 
@@ -582,11 +582,11 @@ WARNING: reaching max number of iterations
 CNN  0.9100000  0.3000000
 QDA  0.9166667  0.7710468
 SVM  0.9620833  0.7279339
-Tree 0.4166667  0.2030441
+Tree 0.4404167  0.2030441
 > 
 > xtable(model_rslts, digits=2)
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Jul 29 14:05:02 2019
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Tue Mar  3 15:49:45 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrr}
@@ -596,7 +596,7 @@ Tree 0.4166667  0.2030441
 CNN & 0.91 & 0.30 \\ 
   QDA & 0.92 & 0.77 \\ 
   SVM & 0.96 & 0.73 \\ 
-  Tree & 0.42 & 0.20 \\ 
+  Tree & 0.44 & 0.20 \\ 
    \hline
 \end{tabular}
 \end{table}
@@ -733,7 +733,7 @@ CNN & 0.91 & 0.30 \\
 + 
 +     ypred_train=predict(treefit ,train, type='class')
 +     #table(predict=ypred_train, truth=as.factor(train$labs))
-+     tree_train<-mean(ypred_train==as.factor((train$labs)))
++     tree_train[i]<-mean(ypred_train==as.factor(as.numeric(labs_train)))
 + 
 +     #plot(treefit )
 +     #text(treefit ,pretty =0)
@@ -865,22 +865,22 @@ WARNING: reaching max number of iterations
 > sd(svm_train)
 [1] 0.05551413
 > sd(tree_train)
-[1] NA
+[1] 0.07396043
 > sd(tree_valid)
 [1] 0.02260702
 > 
 > 
 > #display results
 > model_rslts
-     Train Validation
-CNN  0.860  0.3200000
-QDA  0.897  0.8086389
-SVM  0.943  0.7568333
-Tree 0.500  0.2189306
+         Train Validation
+CNN  0.8600000  0.3200000
+QDA  0.8970000  0.8086389
+SVM  0.9430000  0.7568333
+Tree 0.4563333  0.2189306
 > 
 > xtable(model_rslts, digits=2)
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Jul 29 14:06:07 2019
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Tue Mar  3 15:50:39 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrr}
@@ -890,7 +890,7 @@ Tree 0.500  0.2189306
 CNN & 0.86 & 0.32 \\ 
   QDA & 0.90 & 0.81 \\ 
   SVM & 0.94 & 0.76 \\ 
-  Tree & 0.50 & 0.22 \\ 
+  Tree & 0.46 & 0.22 \\ 
    \hline
 \end{tabular}
 \end{table}
@@ -1028,7 +1028,7 @@ CNN & 0.86 & 0.32 \\
 + 
 +     ypred_train=predict(treefit ,train, type='class')
 +     #table(predict=ypred_train, truth=as.factor(train$labs))
-+     tree_train<-mean(ypred_train==as.factor((train$labs)))
++     tree_train[i]<-mean(ypred_train==as.factor(as.numeric(labs_train)))
 + 
 +     #plot(treefit )
 +     #text(treefit ,pretty =0)
@@ -1210,7 +1210,7 @@ WARNING: reaching max number of iterations
 > sd(svm_train)
 [1] 0.05938276
 > sd(tree_train)
-[1] NA
+[1] 0.05762896
 > sd(tree_valid)
 [1] 0.02225104
 > 
@@ -1221,11 +1221,11 @@ WARNING: reaching max number of iterations
 CNN  0.9200000  0.3700000
 QDA  0.8844444  0.8180812
 SVM  0.9261111  0.7723389
-Tree 0.5277778  0.2256863
+Tree 0.4769444  0.2256863
 > 
 > xtable(model_rslts, digits=2)
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Jul 29 14:07:36 2019
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Tue Mar  3 15:51:53 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrr}
@@ -1235,7 +1235,7 @@ Tree 0.5277778  0.2256863
 CNN & 0.92 & 0.37 \\ 
   QDA & 0.88 & 0.82 \\ 
   SVM & 0.93 & 0.77 \\ 
-  Tree & 0.53 & 0.23 \\ 
+  Tree & 0.48 & 0.23 \\ 
    \hline
 \end{tabular}
 \end{table}
@@ -1373,7 +1373,7 @@ CNN & 0.92 & 0.37 \\
 + 
 +     ypred_train=predict(treefit ,train, type='class')
 +     #table(predict=ypred_train, truth=as.factor(train$labs))
-+     tree_train<-mean(ypred_train==as.factor((train$labs)))
++     tree_train[i]<-mean(ypred_train==as.factor(as.numeric(labs_train)))
 + 
 +     #plot(treefit )
 +     #text(treefit ,pretty =0)
@@ -1555,7 +1555,7 @@ WARNING: reaching max number of iterations
 > sd(svm_train)
 [1] 0.07068678
 > sd(tree_train)
-[1] NA
+[1] 0.05955459
 > sd(tree_valid)
 [1] 0.02471739
 > 
@@ -1566,11 +1566,11 @@ WARNING: reaching max number of iterations
 CNN  0.9400000  0.4200000
 QDA  0.8845238  0.8243220
 SVM  0.9216667  0.7728249
-Tree 0.5238095  0.2377684
+Tree 0.5073810  0.2377684
 > 
 > xtable(model_rslts, digits=2)
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Jul 29 14:10:05 2019
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Tue Mar  3 15:53:12 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrr}
@@ -1580,7 +1580,7 @@ Tree 0.5238095  0.2377684
 CNN & 0.94 & 0.42 \\ 
   QDA & 0.88 & 0.82 \\ 
   SVM & 0.92 & 0.77 \\ 
-  Tree & 0.52 & 0.24 \\ 
+  Tree & 0.51 & 0.24 \\ 
    \hline
 \end{tabular}
 \end{table}
@@ -1717,7 +1717,7 @@ CNN & 0.94 & 0.42 \\
 + 
 +     ypred_train=predict(treefit ,train, type='class')
 +     #table(predict=ypred_train, truth=as.factor(train$labs))
-+     tree_train<-mean(ypred_train==as.factor((train$labs)))
++     tree_train[i]<-mean(ypred_train==as.factor(as.numeric(labs_train)))
 + 
 +     #plot(treefit )
 +     #text(treefit ,pretty =0)
@@ -1931,7 +1931,7 @@ WARNING: reaching max number of iterations
 > sd(svm_train)
 [1] 0.05930232
 > sd(tree_train)
-[1] NA
+[1] 0.05156263
 > sd(tree_valid)
 [1] 0.02017442
 > 
@@ -1942,11 +1942,11 @@ WARNING: reaching max number of iterations
 CNN  0.9200000  0.4600000
 QDA  0.8720833  0.8329487
 SVM  0.9225000  0.7911823
-Tree 0.5416667  0.2422080
+Tree 0.5070833  0.2422080
 > 
 > xtable(model_rslts, digits=2)
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Jul 29 14:11:59 2019
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Tue Mar  3 15:54:48 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrr}
@@ -1956,7 +1956,7 @@ Tree 0.5416667  0.2422080
 CNN & 0.92 & 0.46 \\ 
   QDA & 0.87 & 0.83 \\ 
   SVM & 0.92 & 0.79 \\ 
-  Tree & 0.54 & 0.24 \\ 
+  Tree & 0.51 & 0.24 \\ 
    \hline
 \end{tabular}
 \end{table}
@@ -1966,11 +1966,11 @@ CNN & 0.92 & 0.46 \\
 > 
 > 
 > train_results
-           n=3       n=4   n=5       n=6       n=7       n=8
-CNN  0.9500000 0.9100000 0.860 0.9200000 0.9400000 0.9200000
-QDA  0.9383333 0.9166667 0.897 0.8844444 0.8845238 0.8720833
-SVM  0.9638889 0.9620833 0.943 0.9261111 0.9216667 0.9225000
-Tree 0.3333333 0.4166667 0.500 0.5277778 0.5238095 0.5416667
+           n=3       n=4       n=5       n=6       n=7       n=8
+CNN  0.9500000 0.9100000 0.8600000 0.9200000 0.9400000 0.9200000
+QDA  0.9383333 0.9166667 0.8970000 0.8844444 0.8845238 0.8720833
+SVM  0.9638889 0.9620833 0.9430000 0.9261111 0.9216667 0.9225000
+Tree 0.3961111 0.4404167 0.4563333 0.4769444 0.5073810 0.5070833
 > 
 > valid_results
            n=3       n=4       n=5       n=6       n=7       n=8
@@ -1980,8 +1980,8 @@ SVM  0.6616120 0.7279339 0.7568333 0.7723389 0.7728249 0.7911823
 Tree 0.1901366 0.2030441 0.2189306 0.2256863 0.2377684 0.2422080
 > 
 > xtable(valid_results)
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Jul 29 14:11:59 2019
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Tue Mar  3 15:54:48 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrr}
@@ -1997,8 +1997,8 @@ CNN & 0.27 & 0.30 & 0.32 & 0.37 & 0.42 & 0.46 \\
 \end{table}
 > 
 > xtable(train_results)
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Jul 29 14:11:59 2019
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Tue Mar  3 15:54:48 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrr}
@@ -2008,7 +2008,7 @@ CNN & 0.27 & 0.30 & 0.32 & 0.37 & 0.42 & 0.46 \\
 CNN & 0.95 & 0.91 & 0.86 & 0.92 & 0.94 & 0.92 \\ 
   QDA & 0.94 & 0.92 & 0.90 & 0.88 & 0.88 & 0.87 \\ 
   SVM & 0.96 & 0.96 & 0.94 & 0.93 & 0.92 & 0.92 \\ 
-  Tree & 0.33 & 0.42 & 0.50 & 0.53 & 0.52 & 0.54 \\ 
+  Tree & 0.40 & 0.44 & 0.46 & 0.48 & 0.51 & 0.51 \\ 
    \hline
 \end{tabular}
 \end{table}
@@ -2027,15 +2027,15 @@ In data.row.names(row.names, rowsi, i) :
 1 0.9500000 0.9100000 0.8600000 0.9200000 0.9400000 0.9200000    1
 2 0.9383333 0.9166667 0.8970000 0.8844444 0.8845238 0.8720833    1
 3 0.9638889 0.9620833 0.9430000 0.9261111 0.9216667 0.9225000    1
-4 0.3333333 0.4166667 0.5000000 0.5277778 0.5238095 0.5416667    1
+4 0.3961111 0.4404167 0.4563333 0.4769444 0.5073810 0.5070833    1
 5 0.2700000 0.3000000 0.3200000 0.3700000 0.4200000 0.4600000    2
 6 0.7042486 0.7710468 0.8086389 0.8180812 0.8243220 0.8329487    2
 7 0.6616120 0.7279339 0.7568333 0.7723389 0.7728249 0.7911823    2
 8 0.1901366 0.2030441 0.2189306 0.2256863 0.2377684 0.2422080    2
 > 
 > xtable(ultima)
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Jul 29 14:11:59 2019
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Tue Mar  3 15:54:48 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrl}
@@ -2045,7 +2045,7 @@ In data.row.names(row.names, rowsi, i) :
 1 & 0.95 & 0.91 & 0.86 & 0.92 & 0.94 & 0.92 & 1 \\ 
   2 & 0.94 & 0.92 & 0.90 & 0.88 & 0.88 & 0.87 & 1 \\ 
   3 & 0.96 & 0.96 & 0.94 & 0.93 & 0.92 & 0.92 & 1 \\ 
-  4 & 0.33 & 0.42 & 0.50 & 0.53 & 0.52 & 0.54 & 1 \\ 
+  4 & 0.40 & 0.44 & 0.46 & 0.48 & 0.51 & 0.51 & 1 \\ 
   5 & 0.27 & 0.30 & 0.32 & 0.37 & 0.42 & 0.46 & 2 \\ 
   6 & 0.70 & 0.77 & 0.81 & 0.82 & 0.82 & 0.83 & 2 \\ 
   7 & 0.66 & 0.73 & 0.76 & 0.77 & 0.77 & 0.79 & 2 \\ 
@@ -2118,8 +2118,8 @@ In data.row.names(row.names, rowsi, i) :
 5    5 0.6404110
 6    6 0.6909195
 > xtable(aggregate(sps~labs, FUN=sd))
-% latex table generated in R 3.4.4 by xtable 1.8-2 package
-% Mon Jul 29 14:12:00 2019
+% latex table generated in R 3.4.4 by xtable 1.8-4 package
+% Tue Mar  3 15:54:49 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rlr}
@@ -2144,4 +2144,4 @@ In data.row.names(row.names, rowsi, i) :
 > 
 > proc.time()
    user  system elapsed 
-433.238   0.765 490.519 
+365.226   0.049 365.353 
