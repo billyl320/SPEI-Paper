@@ -193,7 +193,7 @@ for (i in 1:sim) {
 
     ypred_train=predict(treefit ,train, type='class')
     #table(predict=ypred_train, truth=as.factor(train$labs))
-    tree_train<-mean(ypred_train==as.factor((train$labs)))
+    tree_train<-mean(ypred_train==as.factor(as.numeric(labs_valid)))
 
     #plot(treefit )
     #text(treefit ,pretty =0)
@@ -327,7 +327,7 @@ for (i in 1:sim) {
 
     ypred_train=predict(treefit ,train, type='class')
     #table(predict=ypred_train, truth=as.factor(train$labs))
-    tree_train<-mean(ypred_train==as.factor((train$labs)))
+    tree_train<-mean(ypred_train==as.factor(as.numeric(labs_valid)))
 
     #plot(treefit )
     #text(treefit ,pretty =0)
@@ -595,7 +595,7 @@ for (i in 1:sim) {
 
     ypred_train=predict(treefit ,train, type='class')
     #table(predict=ypred_train, truth=as.factor(train$labs))
-    tree_train<-mean(ypred_train==as.factor((train$labs)))
+    tree_train<-mean(ypred_train==as.factor(as.numeric(labs_valid)))
 
     #plot(treefit )
     #text(treefit ,pretty =0)
