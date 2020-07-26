@@ -52,6 +52,40 @@ def GetPicNames( indir ):
             pgmnames.append( indir + '/' + t )
     return pgmnames
 
+#compute fractal dimension via boxes
+#from here https://gist.github.com/viveksck/1110dfca01e4ec2c608515f0d5a5b1d1
+#object needs to be white
+def fd(fname, threshold=0.9):
+    Z = sm.imread(fname, flatten=True)
+    # Only for 2d image
+    Z = (Z<10)+0.00
+    assert(len(Z.shape) == 2)
+    # From https://github.com/rougier/numpy-100 (#87)
+    def boxcount(Z, k):
+        S = np.add.reduceat(
+            np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
+                               np.arange(0, Z.shape[1], k), axis=1)
+        # We count non-empty (0) and non-full boxes (k*k)
+        return len(np.where((S > 0) & (S < k*k))[0])
+    # Transform Z into a binary array
+    Z = (Z < threshold)
+    # Minimal dimension of image
+    p = min(Z.shape)
+    # Greatest power of 2 less than or equal to p
+    n = 2**np.floor(np.log(p)/np.log(2))
+    # Extract the exponent
+    n = int(np.log(n)/np.log(2))
+    # Build successive box sizes (from 2**n down to 2**1)
+    sizes = 2**np.arange(n, 1, -1)
+    # Actual box counting with decreasing size
+    counts = []
+    for size in sizes:
+        counts.append(boxcount(Z, size))
+    # Fit the successive log(sizes) with log (counts)
+    coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
+    return -coeffs[0]
+
+
 #obtaining images
 def GetAllImages( dirs ):
     mgs = []
@@ -100,6 +134,17 @@ def BinaryHist(dirs):
     #return vals
     return hist
 
+#gets fd of images
+def fd_rslt(dirs):
+    imgs = []
+    imgs.append(GetPicNames(dirs[0]))
+    fd_numbs = np.zeros( (len(imgs[0]),1) )
+    #get histogram values
+    for i in range(0,(len(imgs[0]))):
+        fd_numbs[i] = fd( imgs[0][i] )
+    #return vals
+    return fd_numbs
+
 #save histogram as .txt where first column is white counts
 #and second column is black counts
 def GSHistTXT(tname, dirs):
@@ -116,50 +161,10 @@ def BinaryHistTXT(tname, dirs):
     #save as txt
     np.savetxt(tname, hist, delimiter=',', header="white,black", comments='')
 
-#-------------------------------------------------------------------------------
-#the following functions only obtain the image histograms as the images are
-#input.   No other changes are made other than converting the imags
-#to binary ones
-#-------------------------------------------------------------------------------
-
-#convert image to square centered at center of image
-#assuming input has the shape as black
-def convert_old(fname):
-    adata = sm.imread(fname, flatten=True)
-    pic = adata
-    #swapping black and white
-    new = (pic>128) + 0
-    new = 1 - new
-    return new
-
-#obtaining images
-def GetAllImages2( dirs ):
-    mgs = []
-    for d in dirs:
-        mgnames = GetPicNames( d )
-        for j in mgnames:
-            mgs.append( convert_old(j) )
-    return mgs
-
-#gets binary image histogram
-def BinaryHist2(dirs):
-    imgs = []
-    imgs.append(GetAllImages2(dirs))
-    hist = np.zeros( (len(imgs[0]),2) )
-    #get histogram values
-    for i in range(0,(len(imgs[0]))):
-        hist[i][0] = imgs[0][i].sum()
-        hist[i][1] = (imgs[0][i].shape[0]*imgs[0][i].shape[1]) - hist[i][0]
-    #return vals
-    return hist
-
 #save histogram as .txt where first column is white counts
 #and second column is black counts
-def BinaryHistTXT_old(tname, dirs):
+def fdTXT(tname, dirs):
     #obtain histogram
-    hist = BinaryHist2(dirs)
+    fd = fd_rslt(dirs)
     #save as txt
-    np.savetxt(tname, hist, delimiter=',', header="white,black", comments='')
-
-
-#
+    np.savetxt(tname, fd, delimiter=',', header="fd", comments='')
