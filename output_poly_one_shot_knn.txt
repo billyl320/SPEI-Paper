@@ -1,0 +1,233 @@
+
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> #clean workspace
+> rm(list=ls())
+> #loading libraries
+> library('class')#for knn
+> library('xtable')#for LaTex write up
+> library('nortest')#for anderson-darling test
+> 
+> #report session info
+> sessionInfo()
+R version 3.4.4 (2018-03-15)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.5 LTS
+
+Matrix products: default
+BLAS: /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] nortest_1.0-4 xtable_1.8-4  class_7.3-15 
+
+loaded via a namespace (and not attached):
+[1] compiler_3.4.4
+> 
+> #standard error function
+> 
+> se <- function(x){
++ 
++   sqrt(var(x)/length(x))
++ 
++ }
+> 
+> #importing data for encircled image histograms
+> tris <- read.table("tris.txt", sep=",", header=TRUE)
+> squs <- read.table("squs.txt", sep=",", header=TRUE)
+> pens <- read.table("pens.txt", sep=",", header=TRUE)
+> hexs <- read.table("hexs.txt", sep=",", header=TRUE)
+> hepts <- read.table("hepts.txt", sep=",", header=TRUE)
+> octs <- read.table("octs.txt", sep=",", header=TRUE)
+> 
+> 
+> #cleaning data for ggplot2 and analysis
+> labs<-as.factor(c(rep(1, dim(tris)[1]), rep(2, dim(squs)[1]),
++                   rep(3, dim(pens)[1]), rep(4, dim(hexs)[1]),
++                   rep(5, dim(hepts)[1]), rep(6, dim(octs)[1]) ) )
+> 
+> mydata<-rbind(tris, squs, pens, hexs, hepts, octs)
+> sp<-mydata[,1]/rowSums(mydata)
+> mydata<-cbind(mydata,sp)
+> colnames(mydata)[3]<-'sp'
+> 
+> #counts plot
+> temp<-as.data.frame(cbind(labs, mydata))
+> labs2<-as.factor(c(rep("n=3", dim(tris)[1]), rep("n=4", dim(squs)[1]), rep("n=5", dim(pens)[1]),
++                 rep("n=6", dim(hexs)[1]), rep("n=7", dim(hepts)[1]),   rep("n=8", dim(octs)[1]) ))
+> 
+> 
+> mydata<-cbind(labs, mydata)
+> 
+> #
+> #######################
+> #running experiment
+> ########################
+> 
+> #set seed
+> set.seed(117018)
+> 
+> #number of episodes
+> num_ep<-10
+> 
+> #number of test episodes
+> num_test_ep<-1000
+> 
+> #accuracy object
+> acc<-c()
+> acc_info<-matrix(nrow=num_ep, ncol=3, data=0)
+> colnames(acc_info)<-c('Mean Acc.', '2.5% Quantile', '97.5 Quantile')
+> #mean accuracy object
+> mean_acc<-c()
+> 
+> for(j in 1:num_ep){
++ 
++   for(i in 1:num_test_ep){
++     #use the 3 classes
++     classes<-c(1, 2, 3)
++ 
++     #find those 5 classes in mydata
++     keep1<-which(labs==classes[1])
++     keep2<-which(labs==classes[2])
++     keep3<-which(labs==classes[3])
++ 
++ 
++     #sample 20 images;
++     #the first is the 'known' and the remainder are the 'unknown'
++     obs1<-sample(keep1, 16)
++     obs2<-sample(keep2, 16)
++     obs3<-sample(keep3, 16)
++ 
++     #setup known and unknown data objects
++     known<-rbind(mydata[obs1[1],],mydata[obs2[1],],
++                  mydata[obs3[1],]
++                 )
++     unknown<-rbind(mydata[obs1[-1],],mydata[obs2[-1],],
++                    mydata[obs3[-1],]
++                   )
++ 
++     knn_fit<-knn(train=as.matrix(known[,4]),
++                  test=as.matrix(unknown[,4]),
++                  cl=known[,1],
++                  k=1
++                  )
++     tab <- table(prediction=knn_fit,truth=unknown[,1])
++     acc[i]<-sum(diag(tab))/length(unknown[,1])
++ 
++   }
++ 
++   #using only SP
++   acc_info[j,1]<-mean(acc)
++ 
++   #quantile
++   acc_info[j,2:3]<-quantile(acc, probs=c(0.025, 0.975))
++ 
++   mean_acc[j]<-mean(acc)
++ }
+> 
+> #overall
+> t.test(mean_acc)
+
+	One Sample t-test
+
+data:  mean_acc
+t = 2055.1, df = 9, p-value < 2.2e-16
+alternative hypothesis: true mean is not equal to 0
+95 percent confidence interval:
+ 0.9014599 0.9034467
+sample estimates:
+mean of x 
+0.9024533 
+
+> 
+> #se
+> se_acc<-se(mean_acc)
+> 
+> #h
+> h <- se_acc*qt(0.975, 9)
+> h
+[1] 0.0009933838
+> #in percetage
+> h*100
+[1] 0.09933838
+> 
+> mean(mean_acc)+h
+[1] 0.9034467
+> 
+> #shapiro wilk test
+> shapiro.test(mean_acc)
+
+	Shapiro-Wilk normality test
+
+data:  mean_acc
+W = 0.86959, p-value = 0.09887
+
+> 
+> #Kolmogorov-Smirnov test
+> ks.test(mean_acc, 'pnorm')
+
+	One-sample Kolmogorov-Smirnov test
+
+data:  mean_acc
+D = 0.81594, p-value = 9.267e-08
+alternative hypothesis: two-sided
+
+> 
+> #Anderson-Darling
+> ad.test(mean_acc)
+
+	Anderson-Darling normality test
+
+data:  mean_acc
+A = 0.6106, p-value = 0.08016
+
+> 
+> #other info for each episode
+> acc_info
+      Mean Acc. 2.5% Quantile 97.5 Quantile
+ [1,] 0.9028444     0.6216667     1.0000000
+ [2,] 0.9000000     0.5555556     1.0000000
+ [3,] 0.9029111     0.5772222     1.0000000
+ [4,] 0.9027333     0.5555556     1.0000000
+ [5,] 0.9035333     0.5111111     1.0000000
+ [6,] 0.9006889     0.5105556     0.9777778
+ [7,] 0.9039333     0.6000000     1.0000000
+ [8,] 0.9029556     0.5777778     1.0000000
+ [9,] 0.9039111     0.6000000     1.0000000
+[10,] 0.9010222     0.6216667     1.0000000
+> 
+> 
+> #
+> 
+> proc.time()
+   user  system elapsed 
+  8.930   0.049   8.943 
