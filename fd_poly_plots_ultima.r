@@ -30,15 +30,6 @@ mytheme.scat<-theme(
 
 	)
 
-#getting theoretical values
-n <-c(3:8)
-
-#matrix to hold results
-model_rslts<-matrix(nrow=4, ncol=2, data=0)
-colnames(model_rslts)<-c("Train", "Validation")
-rownames(model_rslts)<-c("CNN", "QDA", "SVM", "Tree")
-
-model_rslts[1,]<-c(0.95, 0.27)
 
 #importing data for encircled image histograms
 tris <- read.table("tris_fd.txt", sep=",", header=TRUE)
@@ -62,9 +53,9 @@ labs2<-as.factor(c(rep("n=3", dim(tris)[1]), rep("n=4", dim(squs)[1]), rep("n=5"
                 rep("n=6", dim(hexs)[1]), rep("n=7", dim(hepts)[1]),   rep("n=8", dim(octs)[1]) ))
 
 
-scat<-ggplot(data=temp, aes(fd, fill=as.factor(labs2)))+
+scat<-ggplot(data=temp, aes(-1*fd_box, fill=as.factor(labs2)))+
           geom_histogram()+
-	 	      ggtitle("FD for\nCreated Polygons")+
+	 	      ggtitle("FD via Box-Counting for\nCreated Polygons")+
 		      xlab("FD")+
 					ylab("Frequency")+
 			 		labs(fill= "Legend")+
@@ -77,4 +68,42 @@ scat<-ggplot(data=temp, aes(fd, fill=as.factor(labs2)))+
                 legend.title=element_text(size=24))
 
 ggsave(filename="plots/fd_regular_poly.png", plot=scat,
-       width=9, height=7)
+       width=10, height=8)
+
+#
+scat2<-ggplot(data=temp, aes(fd_min, fill=as.factor(labs2)))+
+          geom_histogram()+
+	 	      ggtitle("FD via Dilation for\nCreated Polygons")+
+		      xlab("FD")+
+					ylab("Frequency")+
+			 		labs(fill= "Legend")+
+					scale_y_continuous(label=scientific_10)+
+          scale_x_continuous(label=scientific_10)+
+          mytheme.scat+
+          scale_color_discrete(breaks=c("n=3","n=4","n=5", "n=6",
+                                        "n=7", "n=8"))+
+          theme(legend.text=element_text(size=18),
+                legend.title=element_text(size=24))
+
+ggsave(filename="plots/fd_dilaiton_regular_poly.png", plot=scat2,
+       width=10, height=8)
+
+#
+scat3<-ggplot(data=temp, aes(fd_mass, fill=as.factor(labs2)))+
+          geom_histogram()+
+	 	      ggtitle("FD via Mass-Radius for\nCreated Polygons")+
+		      xlab("FD")+
+					ylab("Frequency")+
+			 		labs(fill= "Legend")+
+					scale_y_continuous(label=scientific_10)+
+          scale_x_continuous(label=scientific_10)+
+          mytheme.scat+
+          scale_color_discrete(breaks=c("n=3","n=4","n=5", "n=6",
+                                        "n=7", "n=8"))+
+          theme(legend.text=element_text(size=18),
+                legend.title=element_text(size=24))
+
+ggsave(filename="plots/fd_mass_regular_poly.png", plot=scat3,
+       width=10, height=8)
+
+#
